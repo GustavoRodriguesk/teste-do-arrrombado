@@ -35,11 +35,12 @@ git merge master
 ### exemplo de env:
 `````
 
-DATABASE_URL="mysql://root:aluno@localhost:3306/backend_db"
+DATABASE_URL="mysql://root:aluno@localhost:3306/teste"
 PORT=5000
 ENVIRONMENT=local
 HOST=http://localhost
 NODE_ENV=development
 SECRET_KEY=myChavesecreta12345!@#
 CLIENT_ORIGIN_URL="*"
+"
 
