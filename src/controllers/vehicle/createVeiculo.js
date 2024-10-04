@@ -1,4 +1,3 @@
-// Dentro do seu vehicleRouter.js ou controlador
 
 import { Router } from 'express';
 import { createVeiculo } from '../../models/vehicleModel.js'; 
