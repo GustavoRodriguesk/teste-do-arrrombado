@@ -27,7 +27,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
             valor: parseFloat(valor),
             km: parseFloat(km),
             marca,
-            foto: fotoBuffer,  // Armazena a imagem como Bytea
+            foto: fotoBuffer,  
             usuarioId: parseInt(usuarioId),
             cidade,
             estado,
