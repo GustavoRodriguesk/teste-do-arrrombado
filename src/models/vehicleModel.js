@@ -31,12 +31,11 @@ export const deleteVeiculo = async (id) => {
     return veiculo
 }
 
-export const updateVeiculo = async (veiculo) => {
-    const result = await prisma.veiculo.update({
-        data: veiculo,
-        where:{
-           id: veiculo.id 
-        }
-    })
-    return result
-}
+
+
+export const updateVeiculo = async (id, data) => {
+    return await prisma.veiculo.update({
+        where: { id: id },
+        data: data,
+    });
+};

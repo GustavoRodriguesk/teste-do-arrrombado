@@ -102,7 +102,7 @@ model veiculo {
   valor         Int
   km            Int
   marca         String   @db.VarChar(20)
-  foto          String   @db.VarChar(2000)
+  foto          Bytes    
   usuarioId     Int
   cidade        String   @db.VarChar(30)
   estado        String   @db.VarChar(30)
