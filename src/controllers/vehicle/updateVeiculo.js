@@ -9,7 +9,26 @@ const router = Router();
 
 router.put('/:id', upload.single('foto'), async (req, res) => {
     const { id } = req.params;
-    const { modelo, anoFabricacao, cor, descricao, valor, km, marca, usuarioId, cidade, estado, cep, complemento, logradouro, numero, cambio, carroceria, combustivel } = req.body;
+    const {
+        modelo,
+        anoFabricacao,
+        cor,
+        descricao,
+        valor,
+        km,
+        marca,
+        usuarioId,
+        cidade,
+        estado,
+        cep,
+        complemento,
+        logradouro,
+        numero,
+        cambio,
+        carroceria,
+        combustivel
+    } = req.body;
+
     const fotoBuffer = req.file ? req.file.buffer : null;
 
     try {
@@ -21,7 +40,7 @@ router.put('/:id', upload.single('foto'), async (req, res) => {
             valor: parseFloat(valor),
             km: parseFloat(km),
             marca,
-            foto: fotoBuffer,  
+            foto: fotoBuffer,
             usuarioId: parseInt(usuarioId),
             cidade,
             estado,
@@ -34,8 +53,14 @@ router.put('/:id', upload.single('foto'), async (req, res) => {
             combustivel
         };
 
-        const updatedVeiculo = await updateVeiculo(id, veiculoData);
-        
+        // Convert id to number
+        const veiculoId = Number(id);
+        if (isNaN(veiculoId)) {
+            return res.status(400).json({ message: 'ID do veículo inválido.' });
+        }
+
+        const updatedVeiculo = await updateVeiculo(veiculoId, veiculoData);
+
         if (!updatedVeiculo) {
             return res.status(404).json({ message: 'Veículo não encontrado.' });
         }
