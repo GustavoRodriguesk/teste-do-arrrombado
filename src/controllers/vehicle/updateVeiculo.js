@@ -33,49 +33,51 @@ router.put('/:id', upload.single('foto'), async (req, res) => {
         return res.status(400).json({ message: 'ID deve ser um número válido.' });
     }
 
+    if (!modelo || !anoFabricacao || !marca) {
+        return res.status(400).json({ message: 'Modelo, ano de fabricação e marca são obrigatórios.' });
+    }
+
     const fotoBuffer = req.file ? req.file.buffer : null;
 
-    // Check for required fields
-    const requiredFields = [modelo, anoFabricacao, cor, descricao, valor, km, marca, usuarioId];
-    if (requiredFields.some(field => !field)) {
-        return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos.' });
+    const veiculoData = {
+        modelo,
+        anoFabricacao: parseInt(anoFabricacao, 10),
+        cor,
+        descricao,
+        valor: parseFloat(valor),
+        km: parseFloat(km),
+        marca,
+        foto: fotoBuffer, 
+        usuarioId: parseInt(usuarioId, 10),
+        cidade,
+        estado,
+        cep,
+        complemento,
+        logradouro,
+        numero,
+        cambio,
+        carroceria,
+        combustivel
+    };
+
+    if (req.file) {
+        veiculoData.foto = req.file.filename; 
     }
 
     try {
-        const veiculoExistente = await prisma.veiculo.findUnique({
-            where: { id: parseInt(id) }
-        });
+        const result = await updateVeiculo({ id: parseInt(id, 10), ...veiculoData });
 
-        if (!veiculoExistente) {
+        if (!result) {
             return res.status(404).json({ message: 'Veículo não encontrado.' });
         }
 
-        const veiculoData = {
-            modelo,
-            anoFabricacao: parseInt(anoFabricacao),
-            cor,
-            descricao,
-            valor: parseFloat(valor),
-            km: parseFloat(km),
-            marca,
-            foto: fotoBuffer, // or keep as null if not provided
-            usuarioId: parseInt(usuarioId),
-            cidade,
-            estado,
-            cep,
-            complemento,
-            logradouro,
-            numero,
-            cambio,
-            carroceria,
-            combustivel
-        };
-
-        const updatedVeiculo = await updateVeiculo(id, veiculoData);
-        res.status(200).json(updatedVeiculo);
+        res.json({ message: 'Veículo atualizado com sucesso!', veiculo: result });
     } catch (error) {
-        console.error('Error updating vehicle:', error);
-        res.status(500).json({ message: 'Erro ao atualizar veículo.' });
+        console.error(error);
+        if (error?.code === 'P2025') {
+            return res.status(404).json({ message: `Veículo com ID ${id} não encontrado!` });
+        }
+        res.status(500).json({ message: 'Erro ao atualizar veículo.', error: error.message });
     }
 });
 
