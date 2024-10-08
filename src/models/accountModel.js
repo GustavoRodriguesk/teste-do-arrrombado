@@ -2,7 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { DateTime } from 'luxon';
+import multer from 'multer';
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const prisma = new PrismaClient();
 
 const gmt3Date = DateTime.now().setZone('America/Sao_Paulo');
@@ -28,6 +31,7 @@ export async function createNewUser({ nome, email, senha, cpf, telefone, nascime
     const dataRegistroUTC = gmt3Date.toUTC().toJSDate();
 
     const usuario = await prisma.usuario.create({
+        
         data: {
             nome,
             email,
@@ -38,7 +42,7 @@ export async function createNewUser({ nome, email, senha, cpf, telefone, nascime
             isAdmin: isAdmin || false,
             cidade,
             estado,
-            foto_perfil,
+            foto_perfil: fotoBuffer,
             data_registro: dataRegistroUTC 
         },
         select: {
