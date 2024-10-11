@@ -10,7 +10,6 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Configuração do Cloudinary
 cloudinary.v2.config({
     cloud_name: 'de0ujb8vh',
     api_key: '259617411365387',
@@ -34,10 +33,9 @@ router.post('/', upload.single('foto_perfil'), async (req, res) => {
     }
 
     try {
-        // Especifica a pasta para o upload
         const uploadOptions = {
             resource_type: 'auto',
-            public_id: `usuarios/${Date.now()}_${req.file.originalname}`, // 'usuarios/' é a "pasta"
+            public_id: `usuarios/${Date.now()}_${req.file.originalname}`, 
         };
 
         const uploadResponse = await new Promise((resolve, reject) => {
@@ -49,7 +47,6 @@ router.post('/', upload.single('foto_perfil'), async (req, res) => {
             }).end(req.file.buffer);
         });
 
-        // Criação do novo usuário
         const usuario = await createNewUser({
             nome,
             email,
