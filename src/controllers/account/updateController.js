@@ -1,25 +1,22 @@
 import bcrypt from 'bcryptjs';
 import { update } from "../../models/accountModel.js";
 import multer from 'multer';
-import path from 'path';
 import { Router } from 'express';
+import cloudinary from 'cloudinary';
 
-const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, path.resolve("perfil"));
-    },
-    filename: (req, file, callback) => {
-        const time = Date.now();
-        callback(null, `${time}_${file.originalname}`);
-    }
-});
-
-const upload = multer({ storage: storage });
 const router = Router();
 
+cloudinary.v2.config({
+    cloud_name: 'de0ujb8vh', 
+    api_key: '259617411365387',
+    api_secret: 'rD3ZHcyDygGR8fTDaridZ-3Nab4'
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const uploadImage = upload.single('foto_perfil');
 
-const updateController = async (req, res, next) => {
+const updateController = async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -35,8 +32,23 @@ const updateController = async (req, res, next) => {
         }
 
         if (req.file) {
-            usuario.foto_perfil = req.file.filename; 
+            const uploadResponse = await new Promise((resolve, reject) => {
+                const uploadOptions = {
+                    resource_type: 'auto',
+                    public_id: `usuarios/${Date.now()}_${req.file.originalname}`, 
+                };
+
+                cloudinary.v2.uploader.upload_stream(uploadOptions, (error, result) => {
+                    if (error) {
+                        return reject(new Error('Erro ao fazer upload da imagem.'));
+                    }
+                    resolve(result);
+                }).end(req.file.buffer);
+            });
+
+            usuario.foto_perfil = uploadResponse.secure_url; 
         }
+
         if (usuario.nascimento) {
             usuario.nascimento = new Date(usuario.nascimento);
         }
