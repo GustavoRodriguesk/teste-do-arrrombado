@@ -30,7 +30,7 @@
     <input type="date" id="nascimento" placeholder="Data de Nascimento">
     <input type="text" id="cidade" placeholder="Cidade">
     <input type="text" id="estado" placeholder="Estado">
-    <input type="file" id="foto_perfil" accept="image/*">
+    <input type="file" id="foto_perfil" accept="image/*" required>
 
     <button type="submit">Adicionar Usuário</button>
     <div class="loading" id="loading">Carregando...</div>
@@ -81,14 +81,13 @@
             });
 
             const result = await response.json();
-            if (result.error) {
-                errorMessage.textContent = result.error;
-            } else {
-                alert(result.success);
-                loadUsuarios();
+            if (!response.ok) {
+                throw new Error(result.error || 'Erro ao adicionar usuário.');
             }
+            alert(result.success);
+            loadUsuarios();
         } catch (error) {
-            errorMessage.textContent = 'Erro ao adicionar usuário. Tente novamente.';
+            errorMessage.textContent = error.message;
         } finally {
             loadingIndicator.style.display = 'none';
         }
@@ -98,33 +97,30 @@
         loadingIndicator.style.display = 'block';
         try {
             const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Erro ao carregar usuários.');
             const usuarios = await response.json();
             const userTableBody = document.querySelector('#userTable tbody');
             userTableBody.innerHTML = '';
 
-            if (Array.isArray(usuarios)) {
-                usuarios.forEach(usuario => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${usuario.id}</td>
-                        <td><img src="../perfil/${usuario.foto_perfil || 'default_profile.png'}" alt="Foto do Usuário" width="100"></td>
-                        <td>${usuario.nome}</td>
-                        <td>${usuario.email}</td>
-                        <td>${usuario.cpf}</td>
-                        <td>${usuario.cidade}</td>
-                        <td>${usuario.estado}</td>
-                        <td>
-                            <button onclick="editUsuario(${usuario.id})">Editar</button>
-                            <button onclick="deleteUsuario(${usuario.id})">Remover</button>
-                        </td>
-                    `;
-                    userTableBody.appendChild(row);
-                });
-            } else {
-                errorMessage.textContent = 'Erro ao carregar usuários. Tente novamente.';
-            }
+            usuarios.forEach(usuario => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${usuario.id}</td>
+                    <td><img src="${usuario.foto_perfil || '../perfil/default_profile.png'}" alt="Foto do Usuário" width="100"></td>
+                    <td>${usuario.nome}</td>
+                    <td>${usuario.email}</td>
+                    <td>${usuario.cpf}</td>
+                    <td>${usuario.cidade}</td>
+                    <td>${usuario.estado}</td>
+                    <td>
+                        <button onclick="editUsuario(${usuario.id})">Editar</button>
+                        <button onclick="deleteUsuario(${usuario.id})">Remover</button>
+                    </td>
+                `;
+                userTableBody.appendChild(row);
+            });
         } catch (error) {
-            errorMessage.textContent = 'Erro ao carregar usuários. Tente novamente.';
+            errorMessage.textContent = error.message;
         } finally {
             loadingIndicator.style.display = 'none';
         }
